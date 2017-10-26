@@ -49,6 +49,7 @@ function registerGlobalMediaButtons() {
 
 
 function createMainWindow() {
+	console.log("Creating MainWindow");
 	const lastWindowState = config.get('lastWindowState');
 	const mainURL = 'https://play.pocketcasts.com/users/sign_in';
 	const titlePrefix = 'PocketCasts';
@@ -80,17 +81,19 @@ function createMainWindow() {
 	win.loadURL(mainURL);
 
 	win.on('close', e => {
-		if (!isQuitting) {
-			e.preventDefault();
+		console.log("Window close event");
 
-			// Workaround for electron/electron#10023
-			win.blur();
+		if (!mainWindow.isMaximized() && !mainWindow.isFullScreen()) {
+			config.set('lastWindowState', mainWindow.getBounds());
+		}
 
-			if (process.platform === 'darwin') {
-				app.hide();
-			} else {
-				win.hide();
-			}
+		// Workaround for electron/electron#10023
+		win.blur();
+
+		if (process.platform === 'darwin') {
+			app.hide();
+		} else {
+			app.quit();
 		}
 	});
 
@@ -124,9 +127,9 @@ app.on('ready', () => {
 
 	if (process.platform === 'darwin') {
 		const dockMenu = Menu.buildFromTemplate([
-		  {label: 'Play/pause', click () { webContents.send('playPause'); }},
-		  {label: 'Skip forward', click () { webContents.send('skipForward'); }},
-		  {label: 'Skip back', click () { webContents.send('skipBack'); }}
+		  {label: 'Play/pause', click: () => { webContents.send('playPause'); }},
+		  {label: 'Skip forward', click: () => { webContents.send('skipForward'); }},
+		  {label: 'Skip back', click: () => { webContents.send('skipBack'); }}
 		])
 		app.dock.setMenu(dockMenu);
 	}
@@ -169,14 +172,3 @@ app.on('activate', () => {
 	mainWindow.show();
 });
 
-app.on('before-quit', () => {
-	isQuitting = true;
-
-	if (!mainWindow.isFullScreen()) {
-		config.set('lastWindowState', mainWindow.getBounds());
-	}
-});
-
-app.on('window-all-closed', () => {
-  app.quit();
-});
