@@ -176,3 +176,7 @@ app.on('before-quit', () => {
 		config.set('lastWindowState', mainWindow.getBounds());
 	}
 });
+
+app.on('window-all-closed', () => {
+  app.quit();
+});
