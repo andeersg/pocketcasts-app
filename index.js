@@ -136,24 +136,24 @@ app.on('ready', () => {
 			{
 		    tooltip: 'Skip back',
 		    icon: path.join(__dirname, 'static/step-backward.png'),
-		    click () { webContents.send('skipBack'); }
+		    click: () => { webContents.send('skipBack'); }
 		  },
 			{
 		    tooltip: 'Play',
 		    icon: path.join(__dirname, 'static/play.png'),
-		    click () { webContents.send('playPause'); },
+		    click: () => { webContents.send('playPause'); },
 				flags: [(isPlayingPodcast ? 'hidden' : 'enabled')]
 		  },
 			{
 		    tooltip: 'Pause',
 		    icon: path.join(__dirname, 'static/pause.png'),
-		    click () { webContents.send('playPause'); },
+		    click: () => { webContents.send('playPause'); },
 				flags: [(isPlayingPodcast ? 'enabled' : 'hidden')]
 		  },
 		  {
 		    tooltip: 'Skip foward',
 		    icon: path.join(__dirname, 'static/step-forward.png'),
-		    click () { webContents.send('skipForward'); }
+		    click: () => { webContents.send('skipForward'); }
 		  }
 		]);
 	}
