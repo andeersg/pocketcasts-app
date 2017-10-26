@@ -8,7 +8,7 @@ const {autoUpdater} = require('electron-updater');
 const isDev = require('electron-is-dev');
 const config = require('./config');
 
-const {app, ipcMain, Menu, globalShortcut} = electron;
+const {app, ipcMain, Menu, globalShortcut, BrowserWindow} = electron;
 
 app.setAppUserModelId('com.andersgrendstadbakk.pocketcasts');
 app.disableHardwareAcceleration();
@@ -18,18 +18,9 @@ require('electron-dl')();
 require('electron-context-menu')();
 
 let mainWindow;
-let isQuitting = false;
 let isPlayingPodcast = false;
 
-const isAlreadyRunning = app.makeSingleInstance(() => {
-	if (mainWindow) {
-		if (mainWindow.isMinimized()) {
-			mainWindow.restore();
-		}
-
-		mainWindow.show();
-	}
-});
+const isAlreadyRunning = makeSingleInstance();
 
 if (isAlreadyRunning) {
 	app.quit();
@@ -53,7 +44,7 @@ function createMainWindow() {
 	const mainURL = 'https://play.pocketcasts.com/users/sign_in';
 	const titlePrefix = 'PocketCasts';
 
-	const win = new electron.BrowserWindow({
+	const win = new BrowserWindow({
 		title: app.getName(),
 		show: false,
 		x: lastWindowState.x,
@@ -150,10 +141,6 @@ app.on('ready', () => {
 	registerGlobalMediaButtons();
 });
 
-app.on('activate', () => {
-	mainWindow.show();
-});
-
 app.on('before-quit', () => {
 	if (!mainWindow.isFullScreen()) {
 		config.set('lastWindowState', mainWindow.getBounds());
@@ -163,3 +150,21 @@ app.on('before-quit', () => {
 app.on('window-all-closed', () => {
   app.quit();
 });
+
+// Make this app a single instance app.
+//
+// The main window will be restored and focused instead of a second window
+// opened when a person attempts to launch a second instance.
+//
+// Returns true if the current version of the app should quit instead of
+// launching.
+function makeSingleInstance () {
+  if (process.mas) return false;
+
+  return app.makeSingleInstance(function () {
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.focus();
+    }
+  });
+}
