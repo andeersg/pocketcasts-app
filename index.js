@@ -79,21 +79,6 @@ function createMainWindow() {
 
 	win.loadURL(mainURL);
 
-	win.on('close', e => {
-		if (!isQuitting) {
-			e.preventDefault();
-
-			// Workaround for electron/electron#10023
-			win.blur();
-
-			if (process.platform === 'darwin') {
-				app.hide();
-			} else {
-				win.hide();
-			}
-		}
-	});
-
 	win.on('focus', () => {
 		registerGlobalMediaButtons();
 	});
@@ -170,8 +155,6 @@ app.on('activate', () => {
 });
 
 app.on('before-quit', () => {
-	isQuitting = true;
-
 	if (!mainWindow.isFullScreen()) {
 		config.set('lastWindowState', mainWindow.getBounds());
 	}
