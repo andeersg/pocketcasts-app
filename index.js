@@ -8,7 +8,7 @@ const {autoUpdater} = require('electron-updater');
 const isDev = require('electron-is-dev');
 const config = require('./config');
 
-const {app, ipcMain, Menu, globalShortcut, BrowserWindow} = electron;
+const {app, ipcMain, Menu, globalShortcut, BrowserWindow, nativeImage} = electron;
 
 app.setAppUserModelId('com.andersgrendstadbakk.pocketcasts');
 app.disableHardwareAcceleration();
@@ -97,9 +97,9 @@ app.on('ready', () => {
 
 	if (process.platform === 'darwin') {
 		const dockMenu = Menu.buildFromTemplate([
-		  {label: 'Play/pause', click () { webContents.send('playPause'); }},
-		  {label: 'Skip forward', click () { webContents.send('skipForward'); }},
-		  {label: 'Skip back', click () { webContents.send('skipBack'); }}
+		  {label: 'Play/pause', click: () => { webContents.send('playPause'); }},
+		  {label: 'Skip forward', click: () => { webContents.send('skipForward'); }},
+		  {label: 'Skip back', click: () => { webContents.send('skipBack'); }}
 		])
 		app.dock.setMenu(dockMenu);
 	}
@@ -108,24 +108,24 @@ app.on('ready', () => {
 		mainWindow.setThumbarButtons([
 			{
 		    tooltip: 'Skip back',
-		    icon: path.join(__dirname, 'static/step-backward.png'),
+		    icon: nativeImage.createFromPath(path.join(__dirname, 'static/step-backward.png')),
 		    click: () => { webContents.send('skipBack'); }
 		  },
 			{
 		    tooltip: 'Play',
-		    icon: path.join(__dirname, 'static/play.png'),
+		    icon: nativeImage.createFromPath(path.join(__dirname, 'static/play.png')),
 		    click: () => { webContents.send('playPause'); },
 				flags: [(isPlayingPodcast ? 'hidden' : 'enabled')]
 		  },
 			{
 		    tooltip: 'Pause',
-		    icon: path.join(__dirname, 'static/pause.png'),
+		    icon: nativeImage.createFromPath(path.join(__dirname, 'static/pause.png')),
 		    click: () => { webContents.send('playPause'); },
 				flags: [(isPlayingPodcast ? 'enabled' : 'hidden')]
 		  },
 		  {
 		    tooltip: 'Skip foward',
-		    icon: path.join(__dirname, 'static/step-forward.png'),
+		    icon: nativeImage.createFromPath(path.join(__dirname, 'static/step-forward.png')),
 		    click: () => { webContents.send('skipForward'); }
 		  }
 		]);
