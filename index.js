@@ -20,12 +20,6 @@ require('electron-context-menu')();
 let mainWindow;
 let isPlayingPodcast = false;
 
-const isAlreadyRunning = makeSingleInstance();
-
-if (isAlreadyRunning) {
-	app.quit();
-}
-
 function registerGlobalMediaButtons() {
 	globalShortcut.register('MediaPlayPause', () => {
     mainWindow.send('playPause');
@@ -42,6 +36,7 @@ function registerGlobalMediaButtons() {
 function createMainWindow() {
 	const lastWindowState = config.get('lastWindowState');
 	const mainURL = 'https://play.pocketcasts.com/users/sign_in';
+	const betaUrl = 'https://playbeta.pocketcasts.com/web/';
 	const titlePrefix = 'PocketCasts';
 
 	const win = new BrowserWindow({
@@ -84,9 +79,11 @@ if (!isDev && process.platform !== 'linux') {
 }
 
 app.on('ready', () => {
-	mainWindow = createMainWindow();
+	if (!mainWindow) {
+		mainWindow = createMainWindow();
+	}
 
-	const {webContents} = mainWindow;
+	const { webContents } = mainWindow;
 
 	const argv = require('minimist')(process.argv.slice(1));
 
@@ -150,21 +147,3 @@ app.on('before-quit', () => {
 app.on('window-all-closed', () => {
   app.quit();
 });
-
-// Make this app a single instance app.
-//
-// The main window will be restored and focused instead of a second window
-// opened when a person attempts to launch a second instance.
-//
-// Returns true if the current version of the app should quit instead of
-// launching.
-function makeSingleInstance () {
-  if (process.mas) return false;
-
-  return app.makeSingleInstance(function () {
-    if (mainWindow) {
-      if (mainWindow.isMinimized()) mainWindow.restore();
-      mainWindow.focus();
-    }
-  });
-}
